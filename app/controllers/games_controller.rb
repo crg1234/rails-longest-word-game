@@ -2,16 +2,27 @@ require 'json'
 require 'open-uri'
 
 class GamesController < ApplicationController
+  VOWELS = %w(A E I O U Y)
+
   def new
-    @letters = ('a'..'z').to_a.sample(10)
+    @letters = Array.new(5) { VOWELS.sample }
+    @letters += Array.new(5) { (('A'..'Z').to_a - VOWELS).sample }
+    @letters.shuffle!
   end
 
+  # Needed to update this to account for vowels
+  # def new
+  #   @letters = ('a'..'z').to_a.sample(10)
+  # end
+
   def score
-    @grid = params[:grid]
-    @word = params[:word]
-    @valid = word_check(@word)
-    @word_in_grid = grid_check(@word, @grid)
+    @grid = params[:grid].split
+    @word = params[:word || ""].upcase
+    @english_word = word_check(@word)
+    @included = grid_check(@word, @grid)
   end
+
+  private
 
   # check if word is English
   def word_check(word)
@@ -28,5 +39,4 @@ class GamesController < ApplicationController
       @word.count(letter) <= @grid.count(letter)
     end
   end
-
 end
